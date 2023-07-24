@@ -3,4 +3,3 @@ Pytorch implementation of ICASSP 2023 paper, "Temporal Modeling Matters: A Novel
 
 Original Tensorflow implementation: https://github.com/Jiaxin-Ye/TIM-Net_SER
 
-Test function not completed
