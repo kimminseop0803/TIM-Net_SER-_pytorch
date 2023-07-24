@@ -193,7 +193,7 @@ class TIMNET_Model(nn.Module):
         for fold, (train_ids, test_ids) in enumerate(kfold.split(x, y)):
             test_x, test_y = x[test_ids], y[test_ids]
             test_dataset = MyDataset(test_x, test_y)
-            test_loader = DataLoader(dataset=test_dataset, batch_size=self.args.batch_size, shuffle=False)
+            test_loader = DataLoader(dataset=test_dataset, batch_size=len(test_x), shuffle=False)
 
             model = TIMNET(nb_filters=self.args.filter_size,
                                 kernel_size=self.args.kernel_size, 
@@ -209,8 +209,10 @@ class TIMNET_Model(nn.Module):
             loss_fn = nn.CrossEntropyLoss().cuda()
 
             weight_path = path + '/' + str(self.args.split_fold) + "-fold_weights_best_" + str(i) + ".pth"
-            self.model.load_state_dict(torch.load(weight_path))
-            self.model.eval()
+            model.load_state_dict(torch.load(weight_path))
+            model.eval()
+            total_acc = 0
+            total_loss = 0
             
             with torch.no_grad():
                 for data, target in test_loader:
@@ -229,6 +231,7 @@ class TIMNET_Model(nn.Module):
             total_acc = total_acc / len(test_loader)
             total_loss = total_loss / len(test_loader)
             print(f"Total Loss: {total_loss},Total Accuracy: {total_acc}")
+            i += 1
 
             avg_accuracy += total_acc
             self.matrix.append(confusion_matrix(actual.detach().cpu().numpy(), predicted.detach().cpu().numpy()))
